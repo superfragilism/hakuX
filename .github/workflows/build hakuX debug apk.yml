@@ -21,6 +21,12 @@ jobs:
           distribution: temurin
           java-version: 21
 
+      - name: Verify Java installation
+        run: |
+          echo "JAVA_HOME=$JAVA_HOME"
+          java -version
+          test -x "$JAVA_HOME/bin/java"
+
       - name: Set up Android SDK, build tools and NDK
         uses: android-actions/setup-android@v3
         with:
@@ -65,13 +71,12 @@ jobs:
           git clone --depth 1 --branch release-3.4.18 \
             https://github.com/libsdl-org/SDL "$D/SDL3"
 
-          # libslirp: exact revision required by hakuX
+          # libslirp: required revision
           git clone https://gitlab.freedesktop.org/slirp/libslirp "$D/libslirp"
           git -C "$D/libslirp" checkout 26be815b
 
-          # nv2a_vsh_cpu: download exact pinned source
+          # nv2a_vsh_cpu: exact pinned source
           NV2A="$D/root/subprojects/nv2a_vsh_cpu"
-
           mkdir -p "$NV2A"
 
           curl --fail --location --retry 3 \
@@ -111,6 +116,17 @@ jobs:
           ninja -C build/native/core hakuxcore
 
           bash tools/native/app-libs.sh
+
+      - name: Remove invalid Gradle Java home override
+        run: |
+          echo "Removing hardcoded org.gradle.java.home settings..."
+
+          find . -type f -name gradle.properties \
+            -not -path './.git/*' \
+            -print0 | xargs -0 -r sed -i -E \
+            '/^[[:space:]]*org\.gradle\.java\.home[[:space:]]*=/d'
+
+          echo "Using Java installation: $JAVA_HOME"
 
       - name: Build the APK
         working-directory: android
