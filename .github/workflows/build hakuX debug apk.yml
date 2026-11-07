@@ -1,3 +1,4 @@
+
 name: Build hakuX debug APK
 
 on:
@@ -7,6 +8,7 @@ jobs:
   build:
     runs-on: ubuntu-24.04
     timeout-minutes: 120
+
     steps:
       - name: Checkout (without submodules)
         uses: actions/checkout@v4
@@ -36,20 +38,25 @@ jobs:
       - name: Third-party sources (NC_DEPS)
         run: |
           D=$HOME/native-deps
-          mkdir -p $D/root/subprojects
-          git clone --depth 1 --branch 1.4.304 https://github.com/zeux/volk $D/volk
-          git clone --depth 1 --branch 16.1.0 https://github.com/KhronosGroup/glslang $D/glslang
-          git clone --depth 1 --branch vulkan-sdk-1.4.328.0 https://github.com/KhronosGroup/SPIRV-Reflect $D/spirv_reflect
-          git clone --depth 1 --branch v3.3.0 https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator $D/vma
-          git clone --depth 1 --branch release-3.4.18 https://github.com/libsdl-org/SDL $D/SDL3
-          git clone --depth 1 --branch v4.7.0 https://gitlab.freedesktop.org/slirp/libslirp $D/libslirp
-          git clone https://github.com/abaire/nv2a_vsh_cpu $D/root/subprojects/nv2a_vsh_cpu
-          git -C $D/root/subprojects/nv2a_vsh_cpu checkout 561fe80
-          git clone --recursive https://github.com/bylaws/libadrenotools $D/adrenotools
-          git -C $D/adrenotools checkout 8fae8ce
-          git -C $D/adrenotools submodule update --init --recursive
-          git -C $D/adrenotools apply "$GITHUB_WORKSPACE/tools/native/adrenotools-kgsl-context-priority.patch"
-          echo "NC_DEPS=$D" >> $GITHUB_ENV
+          mkdir -p "$D/root/subprojects"
+
+          git clone --depth 1 --branch 1.4.304 https://github.com/zeux/volk "$D/volk"
+          git clone --depth 1 --branch 16.1.0 https://github.com/KhronosGroup/glslang "$D/glslang"
+          git clone --depth 1 --branch vulkan-sdk-1.4.328.0 https://github.com/KhronosGroup/SPIRV-Reflect "$D/spirv_reflect"
+          git clone --depth 1 --branch v3.3.0 https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator "$D/vma"
+          git clone --depth 1 --branch release-3.4.18 https://github.com/libsdl-org/SDL "$D/SDL3"
+          git clone --depth 1 --branch v4.7.0 https://gitlab.freedesktop.org/slirp/libslirp "$D/libslirp"
+
+          git clone https://github.com/abaire/nv2a_vsh_cpu "$D/root/subprojects/nv2a_vsh_cpu"
+          git -C "$D/root/subprojects/nv2a_vsh_cpu" fetch origin 561fe80
+          git -C "$D/root/subprojects/nv2a_vsh_cpu" checkout FETCH_HEAD
+
+          git clone --recursive https://github.com/bylaws/libadrenotools "$D/adrenotools"
+          git -C "$D/adrenotools" checkout 8fae8ce
+          git -C "$D/adrenotools" submodule update --init --recursive
+          git -C "$D/adrenotools" apply "$GITHUB_WORKSPACE/tools/native/adrenotools-kgsl-context-priority.patch"
+
+          echo "NC_DEPS=$D" >> "$GITHUB_ENV"
 
       - name: Build the native core
         run: |
