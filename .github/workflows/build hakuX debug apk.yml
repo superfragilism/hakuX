@@ -65,11 +65,11 @@ jobs:
           git clone --depth 1 --branch release-3.4.18 \
             https://github.com/libsdl-org/SDL "$D/SDL3"
 
-          # libslirp
-          git clone --depth 1 --branch v4.7.0 \
-            https://gitlab.freedesktop.org/slirp/libslirp "$D/libslirp"
+          # libslirp: exact revision required by hakuX
+          git clone https://gitlab.freedesktop.org/slirp/libslirp "$D/libslirp"
+          git -C "$D/libslirp" checkout 26be815b
 
-          # nv2a_vsh_cpu: download the exact pinned commit
+          # nv2a_vsh_cpu: download exact pinned source
           NV2A="$D/root/subprojects/nv2a_vsh_cpu"
 
           mkdir -p "$NV2A"
